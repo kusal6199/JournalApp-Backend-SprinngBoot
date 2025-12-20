@@ -21,9 +21,11 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-   @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+   @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
 //   @JoinColumn(name = "fk_user_id", referencedColumnName = "id")
    @JsonManagedReference
    private List<JournalEntry> journalEntry;
+
+   private List<String> roles;
 
 }

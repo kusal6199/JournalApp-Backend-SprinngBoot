@@ -4,6 +4,7 @@ import com.example.journalApp.model.JournalEntry;
 import com.example.journalApp.model.User;
 import com.example.journalApp.repository.JournalRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @Component
 public class JournalEntryService {
 
@@ -27,6 +30,7 @@ public class JournalEntryService {
         User user = userService.findByUsername(username);
 
         if (user==null){
+            log.error("--------------username not found-----------------");
             throw new RuntimeException("User not found with username: " + username);
         }
 //        JournalEntry saved = repository.save(journalEntry);
@@ -58,8 +62,15 @@ public class JournalEntryService {
         if (user!=null){
             return repository.findAllByUserId(user.getId());
         }
+
         return Collections.emptyList();
 
     }
+
+//    public User findUserByUsername(String username){
+//        return repository.findUserByUserName(username);
+//    }
+
+
 
 }

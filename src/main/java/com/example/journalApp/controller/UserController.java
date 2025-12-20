@@ -2,14 +2,19 @@ package com.example.journalApp.controller;
 
 import java.util.List;
 
+import com.example.journalApp.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.journalApp.model.User;
 import com.example.journalApp.service.UserService;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -17,37 +22,37 @@ public class UserController {
     @Autowired
     private UserService service;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return service.getAllUser();
-    }
-
-    @PostMapping
-    public void createUser(@RequestBody User user) {
-        service.saveUser(user);
-    }
+//    @Autowired
+//    private UserRepository repository;
 
 
 
-    @PutMapping("/{username}")
-    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String username) {
+//    @GetMapping
+//    public List<User> getAllUsers() {
+//        return service.getAllUser();
+//    }   this is handled by admin
+
+
+
+
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody User user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
         User userInDB = service.findByUsername(username);
-        if (userInDB != null) {
             userInDB.setUsername(user.getUsername());
             userInDB.setPassword(user.getPassword());
             service.saveUser(userInDB);
-        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{username}")
-    public ResponseEntity<?> deleteUser(@PathVariable String username){
-        User user= service.findByUsername(username);
-        if (user!=null){
-            service.deleteUser(user.getId());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        service.deleteByUsername(username);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{username}")
@@ -56,6 +61,7 @@ public class UserController {
         if (user!=null){
             return new ResponseEntity<>(user,HttpStatus.OK);
         }
+        log.info("---------------------no user found-------------------");
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
